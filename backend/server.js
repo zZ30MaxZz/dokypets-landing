@@ -1,6 +1,11 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const authRoutes = require('./routes/auth');
+const petsRoutes = require('./routes/pets');
+const servicesRoutes = require('./routes/services');
+const appointmentsRoutes = require('./routes/appointments');
+const dashboardRoutes = require('./routes/dashboard');
 const { Pool } = require('pg');
 
 // Load environment variables
@@ -31,6 +36,19 @@ pool.query('SELECT NOW()', (err, res) => {
   }
 });
 
+// Make pool available to routes
+app.use((req, res, next) => {
+  req.pool = pool;
+  next();
+});
+
+// Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/pets', petsRoutes);
+app.use('/api/services', servicesRoutes);
+app.use('/api/appointments', appointmentsRoutes);
+app.use('/api/dashboard', dashboardRoutes);
+
 // Basic route
 app.get('/', (req, res) => {
   res.json({ message: 'Dokypets API is running' });
@@ -41,4 +59,4 @@ app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
 
-module.exports = { app, pool };
+module.exports = app;
